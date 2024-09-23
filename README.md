@@ -69,7 +69,7 @@ to scripts section of composer.json
           "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters",
           "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
           "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache",
-          "FM\\TinyMCEBundle\\Composer\\TinyMCEcriptHandler::copy",
+          "FM\\TinyMCEBundle\\Composer\\TinyMCEScriptHandler::copy",
           "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installAssets",
           "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installRequirementsFile",
           "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::prepareDeploymentTarget"
