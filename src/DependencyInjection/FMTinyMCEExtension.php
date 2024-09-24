@@ -6,6 +6,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class FMTinyMCEExtension extends Extension
 {
@@ -20,6 +21,12 @@ class FMTinyMCEExtension extends Extension
 
         $container->setParameter('fm_tinymce', $config);
         $container->setParameter('fm_tinymce.instances', $config['instances']);
+
+        $loaderYaml = new YamlFileLoader(
+            $container,
+            new FileLocator(__DIR__ . '/../Resources/config')
+        );
+        $loaderYaml->load('services.yaml');
     }
 
     public function getAlias(): string

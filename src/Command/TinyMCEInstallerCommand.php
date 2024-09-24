@@ -11,12 +11,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class TinyMCEInstallerCommand extends Command
 {
-    protected static $defaultName = 'fm:tinymce:install';
+    protected static $defaultName = 'fm:tinymce:install'; // Nom del command
+
     private $projectDir;
 
     public function __construct(string $projectDir)
     {
-        parent::__construct();
+        parent::__construct(); // Això garanteix que $defaultName s'estableix correctament
         $this->projectDir = $projectDir;
     }
 
