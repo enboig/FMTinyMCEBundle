@@ -1,86 +1,55 @@
 <?php
 
-
 namespace FM\TinyMCEBundle\Command;
 
-use Composer\Script\CommandEvent;
-use Composer\Script\Event;
-use Symfony\Component\Finder\Finder;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Exception\IOException;
-use Sensio\Bundle\DistributionBundle\Composer\ScriptHandler;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
-class TinyMCEScriptHandler extends Command
+class TinyMCEInstallerCommand extends Command
 {
-    /**
-     * @param CommandEvent|Event $event
-     *
-     * @return string
-     */
-    public static function copy(Event $event)
+    protected static $defaultName = 'fm:tinymce:install';
+    private $projectDir;
+
+    public function __construct(string $projectDir)
     {
-        $extras  = $event->getComposer()->getPackage()->getExtra();
-        $version = \Symfony\Component\HttpKernel\Kernel::MAJOR_VERSION;
+        parent::__construct();
+        $this->projectDir = $projectDir;
+    }
 
-        $baseDir = 'vendor/tinymce/';
+    protected function configure()
+    {
+        $this
+            ->setDescription('Instal·la TinyMCE al directori públic')
+            ->addOption('target', null, InputOption::VALUE_OPTIONAL, 'Directori on instal·lar TinyMCE', 'public/bundles/fmtinymce/tinymce');
+    }
 
-        $destinationDir = $version < 4 ? 'web/assets/tinymce/' : 'public/assets/tinymce/';
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $io = new SymfonyStyle($input, $output);
+        $filesystem = new Filesystem();
 
-        if (isset($extras['tinymce-dir'])) {
-            $destinationDir = $extras['tinymce-dir'];
+        $targetDir = $this->projectDir . '/' . $input->getOption('target');
+
+        // Comprovar si el directori existeix
+        if (!$filesystem->exists($targetDir)) {
+            $filesystem->mkdir($targetDir, 0777);
+            $io->success('Directori creat: ' . $targetDir);
         }
 
-        $fs = new Filesystem();
-        $io = $event->getIO();
-
-        $dirsToCopy = new DirectoryIterator($baseDir);
-
-        foreach ($dirsToCopy as $dir) {
-            $from         = $baseDir.$dir;
-            $to           = $destinationDir.$dir;
-            $isRenameFile = '/' != substr($to, -1) && !is_dir($from);
-            if (file_exists($to) && !is_dir($to) && !$isRenameFile) {
-                throw new \InvalidArgumentException('Destination directory is not a directory.');
-            }
-
-            try {
-                if ($isRenameFile) {
-                    $fs->mkdir(dirname($to));
-                } else {
-                    $fs->mkdir($to);
-                }
-            } catch (IOException $e) {
-                throw new \InvalidArgumentException(sprintf('<error>Could not create directory %s.</error>', $to));
-            }
-
-            if (false === file_exists($from)) {
-                throw new \InvalidArgumentException(sprintf('<error>Source directory or file "%s" does not exist.</error>', $from));
-            }
-
-            if (is_dir($from)) {
-                $finder = new Finder();
-                $finder->files()->ignoreDotFiles(false)->in($from);
-                foreach ($finder as $file) {
-                    $dest = sprintf('%s/%s', $to, $file->getRelativePathname());
-
-                    try {
-                        $fs->copy($file, $dest);
-                    } catch (IOException $e) {
-                        throw new \InvalidArgumentException(sprintf('<error>Could not copy %s</error>', $file->getBaseName()));
-                    }
-                }
-            } else {
-                try {
-                    if ($isRenameFile) {
-                        $fs->copy($from, $to);
-                    } else {
-                        $fs->copy($from, $to.'/'.basename($from));
-                    }
-                } catch (IOException $e) {
-                    throw new \InvalidArgumentException(sprintf('<error>Could not copy %s</error>', $from));
-                }
-            }
-            $io->write(sprintf('Copied asset file(s) from <comment>%s</comment> to <comment>%s</comment>.', $from, $to));
+        // Copiar els fitxers de TinyMCE (actualitza aquest camí amb el correcte)
+        $tinymceSourcePath = __DIR__ . '/../../Resources/public/tinymce'; // Aquí és on tens TinyMCE
+        if (!$filesystem->exists($tinymceSourcePath)) {
+            $io->error('El directori de TinyMCE no existeix: ' . $tinymceSourcePath);
+            return Command::FAILURE;
         }
+
+        $filesystem->mirror($tinymceSourcePath, $targetDir);
+        $io->success('TinyMCE s\'ha instal·lat correctament a: ' . $targetDir);
+
+        return Command::SUCCESS;
     }
 }
