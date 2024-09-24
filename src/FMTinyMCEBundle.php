@@ -20,7 +20,7 @@ class FMTinyMCEBundle extends Bundle
     public function getContainerExtension(): ?ExtensionInterface
     {
         if (null === $this->extension) {
-            $this->extension = new FMTinyMCEExtension();
+            $this->extension = new DependencyInjection\FMTinyMCEExtension();
         }
 
         return $this->extension;
