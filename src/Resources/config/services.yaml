@@ -1,0 +1,7 @@
+# config/services.yaml
+services:
+    FM\TinyMCEBundle\Command\TinyMCEInstallerCommand:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+        tags:
+            - { name: 'console.command' }
